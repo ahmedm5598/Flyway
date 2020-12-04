@@ -10,13 +10,7 @@ import java.util.Scanner;
 
 import com.example.myDemo.model.Employee;
 import com.example.myDemo.repository.EmployeeRepository;
-import feign.Feign;
-import feign.Target;
-import feign.codec.Decoder;
-import feign.codec.Encoder;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.cloud.openfeign.EnableFeignClients;
-import org.springframework.cloud.openfeign.FeignClientsConfiguration;
 import org.springframework.context.annotation.Import;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -30,43 +24,15 @@ import org.springframework.web.bind.annotation.RestController;
 
 
 @RestController
-@Import(FeignClientsConfiguration.class)
-@EnableFeignClients(basePackages = {"com.example.myDemo.controller"})
 @RequestMapping("/api/v1")
 public class EmployeeController {
     @Autowired
     private EmployeeRepository employeeRepository;
 
-    @Autowired
-    SecondServiceClient secondServiceClient;
-
-
-    @Autowired
-    public EmployeeController(Decoder decoder, Encoder encoder) {
-        secondServiceClient = Feign.builder().encoder(encoder).decoder(decoder)
-                .target(Target.EmptyTarget.create(SecondServiceClient.class));
-    }
-
     //getEmployees
     @GetMapping("employees")
     public List<Employee> getAllEmployee(){
-        String data = "";
-        try {
-            File myObj = new File("url.txt");
-            Scanner myReader = new Scanner(myObj);
-            while (myReader.hasNextLine()) {
-                data = myReader.nextLine();
-                System.out.println(data);
-            }
-            myReader.close();
-        } catch (FileNotFoundException e) {
-            System.out.println("An error occurred.");
-            e.printStackTrace();
-        }
-        //URI determinedBasePathUri = URI.create("http://localhost:8081/api/v2/employees");
-        return secondServiceClient.getAllEmployee(URI.create(data));
-        //return secondServiceClient.getAllEmployee(URI.create("http://localhost:8081/api/v2/employees"));
-        //return this.employeeRepository.findAll();
+        return this.employeeRepository.findAll();
     }
     //get employee by id
     @GetMapping("/employees/{id}")
@@ -123,7 +89,3 @@ public class EmployeeController {
         return ResponseEntity.ok().body("Employee deleted");
     }
 }
-
-//embedded postgres
-//spring boot basics
-//new relic vs datadog
